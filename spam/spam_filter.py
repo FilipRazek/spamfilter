@@ -1,10 +1,8 @@
 import imaplib
 import email
+import os
 from email.header import decode_header
 
-username = "USERNAME"
-password = "PASSWORD"
-imap_server = "imap." + username.split("@")[1]
 
 def extract_subject(msg):
     subject, encoding = decode_header(msg["Subject"])[0]
@@ -12,7 +10,11 @@ def extract_subject(msg):
         return subject.decode(encoding or 'utf-8')
     return subject
 
-def main():
+def run_spam_filter():
+    username = os.getenv("SPAM_USERNAME")
+    password = os.getenv("SPAM_PASSWORD")
+    imap_server = "imap." + username.split("@")[1]
+    print(username, password, imap_server)
     imap = imaplib.IMAP4_SSL(imap_server)
     imap.login(username, password)
     _, messages = imap.select("INBOX")
@@ -31,5 +33,3 @@ def main():
                     imap.store(mail_number, "+FLAGS", "\\Deleted")
     imap.close()
     imap.logout()
-
-main()
